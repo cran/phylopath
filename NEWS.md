@@ -1,4 +1,16 @@
-pylopath 0.0.2
+phylopath 0.2.1
+--------------------------------------------------------------------------------
+
+* IMPORTANT: Faulty model averaging has been fixed. This was often introduced
+  due to differences in matrix ordering. Avering results from versions before
+  0.2.1 should NOT be trusted.
+
+* Using `ape::corBrownian()` no longer returns an error.
+
+* Averaging is less likely to fail due to errors in `nlme::intervals()`.
+
+
+phylopath 0.2.0
 --------------------------------------------------------------------------------
 
 * `phylo_path()` has become more streamlined with functionality moved to other

@@ -54,6 +54,9 @@ phylo_path <- function(models, data, tree, order = NULL,
   } ) )
   p_vals <- lapply(dsep_models, function(x) sapply(x, get_p))
   corStructs <- lapply(dsep_models, function(x) sapply(x, get_corStruct))
+  if (is.null(unlist(corStructs))) {
+    corStructs <- NA
+  }
 
   d_sep <- Map(function(a, b, c, d) {
     dplyr::data_frame(d_sep = unlist(as.character(a)),
@@ -125,7 +128,6 @@ best <- function(phylopath) {
 #'
 #' @examples
 #'   candidates <- list(A = DAG(LS ~ BM, NL ~ BM, DD ~ NL + LS),
-#'                      B = DAG(LS ~ BM, NL ~ LS, DD ~ NL),
 #'                      C = DAG(LS ~ BM, NL ~ LS + BM, DD ~ NL))
 #'   p <- phylo_path(candidates, rhino, rhino_tree)
 #'   summary(p)
@@ -135,12 +137,15 @@ best <- function(phylopath) {
 #'   avg_model <- average(p)
 #'   # Print the average model to see coefficients, se and ci:
 #'   avg_model
+#'
+#'   \dontrun{
 #'   # Plot to show the weighted graph:
 #'   plot(avg_model)
 #'   # Note that coefficents that only occur in one of the models become much
 #'   # smaller when we use full averaging:
 #'   coef_plot(avg_model)
 #'   coef_plot(average(p, method = 'full'))
+#'   }
 #'
 average <- function(phylopath, cut_off = 2, method = 'conditional', ...) {
   d <- summary(phylopath)
