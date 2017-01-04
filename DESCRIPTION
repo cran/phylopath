@@ -1,7 +1,7 @@
 Package: phylopath
 Type: Package
 Title: Perform Phylogenetic Path Analysis
-Version: 0.2.1
+Version: 0.2.2
 Author: Wouter van der Bijl
 Maintainer: Wouter van der Bijl <wouter.van.der.bijl@zoologi.su.se>
 Description: A comprehensive and easy to use R implementation of confirmatory
@@ -12,12 +12,12 @@ BugReports: https://github.com/Ax3man/phylopath/issues
 License: GPL-3
 LazyData: TRUE
 Depends: R (>= 2.10)
-Imports: ape, DiagrammeR, dplyr, ggm, ggplot2, igraph, MuMIn, nlme,
-        purrr, tibble, tidyr
+Imports: ape, DiagrammeR (>= 0.9.0), dplyr, ggm, ggplot2, igraph,
+        MuMIn, nlme, parallel, pbapply, purrr, tibble, tidyr
 RoxygenNote: 5.0.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2016-11-09 16:24:50 UTC; Wouter
+Packaged: 2017-01-04 13:39:28 UTC; Wouter
 Repository: CRAN
-Date/Publication: 2016-11-10 08:19:05
+Date/Publication: 2017-01-04 16:37:12

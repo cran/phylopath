@@ -1,3 +1,25 @@
+phylopath 0.2.2
+--------------------------------------------------------------------------------
+
+* Fewer models are now fitted when using `phylo_path()`, since any duplicated
+  independence statements are now only fitted once. This leads to a significant
+  reduction in running time in many cases, especially when many models are
+  conscidered.
+  
+* Implemented support for parallel processing in `phylo_path()` using the
+  `parallel` argument.
+  
+* `phylo_path()` now shows a progress bar. 
+
+* New function added (`choice()`) that is a very simple wrapper around 
+  `est_DAG()`. It adds to `best()` and `average()` by allowing for choosing
+  any model as the final model, and encourages users to not always pick the 
+  lowest CICc model.
+  
+* Prepared plotting functions for new release of `DiagrammeR`, v0.9 now
+  required.
+
+
 phylopath 0.2.1
 --------------------------------------------------------------------------------
 
