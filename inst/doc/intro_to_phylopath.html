@@ -12,7 +12,7 @@
 
 <meta name="author" content="Wouter van der Bijl" />
 
-<meta name="date" content="2017-01-04" />
+<meta name="date" content="2017-03-23" />
 
 <title>Introduction to phylogenetic path analysis with phylopath</title>
 
@@ -70,11 +70,25 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Introduction to phylogenetic path analysis with phylopath</h1>
 <h4 class="author"><em>Wouter van der Bijl</em></h4>
-<h4 class="date"><em>2017-01-04</em></h4>
+<h4 class="date"><em>2017-03-23</em></h4>
 
 
 
-<p>This vignette gives a quick overview of the package by recreating the phylogenetic path analysis described in:</p>
+<div id="some-starting-notes" class="section level3">
+<h3>Some starting notes</h3>
+<p>If you are unfamiliar with phylogenetic comparative methods in general, I’d advise you learn more simple methods first. If you are comfortable with phylogenetic methods, but not with phylogenetic path analysis (PPA) in particular, you should have a look at the example below together with the wonderful book chapter by Gonzalez-Voyer and Von Hardenberg.</p>
+<p>This package follows the general approach to phylogenetic methods as used by the package <code>ape</code> (<code>nlme::gls</code> and <code>ape</code> are also used “under the hood”). This means in particular that you line up your phylogenetic tree and data by assigning the tip labels as the row names of your data.frame. (Please note that this is different from the approach of <code>caper::pgls</code> where you create a comparative data object.)</p>
+<p>This also means that you use the correlation function from <code>ape</code>, by default <code>corPagel</code>, to supply the model of evolution. <code>corPagel</code> in particular estimates <em>lambda</em> without constraints (so it can be smaller than 0), and results can therefore be different from analysis using <code>caper</code> (which constrains <em>lambda</em> between 0 and 1).</p>
+<p><code>phylopath</code> makes it’s best attempt at helping users out with their data and tree. That means in particular that:</p>
+<ul>
+<li>an informative error is raised when you have species (rownames) in your data that are not in the tree,</li>
+<li>that <code>NA</code> values are filtered out of the data as necessary, with an informative message, and</li>
+<li>that the tree will be pruned for you if it has surplus species, with an informative message.</li>
+</ul>
+</div>
+<div id="an-example-analysis" class="section level3">
+<h3>An example analysis</h3>
+<p>Below I recreate the phylogenetic path analysis described in:</p>
 <blockquote>
 <p>Gonzalez-Voyer A &amp; von Hardenberg A. 2014. An Introduction to Phylogenetic Path Analysis. Chapter 8. In: Garamszegi LZ (ed.), Modern Phylogenetic Comparative Methods and Their Application in Evolutionary Biology. pp. 201-229. Springer-Verlag Berlin Heidelberg.</p>
 </blockquote>
@@ -217,6 +231,7 @@ models &lt;-<span class="st"> </span><span class="kw">list</span>(
 ## 5 LS ~ NL + BM + DD 2.176122e-01 0.7766188 &lt;S3: gls&gt;
 ## 6 RS ~ DD + BM + LS 9.956174e-01 0.5715937 &lt;S3: gls&gt;</code></pre>
 <p>For model 1 it seems that the third conditional independence statement was violated.</p>
+</div>
 
 
 
