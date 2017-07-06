@@ -1,4 +1,21 @@
+phylopath 0.3.0
+
+* Added support for completely binary models, that are fitted with 
+  `ape::binaryPGLMM`. Use `phylo_path_binary()` to compare models. `average()`,
+  `best()` and `choose()` are now S3 generics and will handle both continious
+  and binary versions. Usage is designed to be as close to the continious version
+  as possible. `est_DAG_binary()` powers the binary S3 methods.
+
+* All plot functions that used `DiagrammeR` now use `ggraph` instead. This gives
+  much more control over the positioning of the nodes, and allows to plot 
+  multiple models at once. Exporting plots also becomes much easier.
+
+* You can now plot a list of causal models with `plot_model_set()`. This 
+  creates a facetted plot where all nodes are kept in the same location, which 
+  makes it easier to spot how models are different.
+
 phylopath 0.2.3
+--------------------------------------------------------------------------------
 
 * If there are any `NA` values in `data` for the variables in `models`, these
   rows are now dropped from `data` with a message. Use `na.rm = FALSE` to revert
@@ -8,6 +25,7 @@ phylopath 0.2.3
 
 * `phylo_path()` now checks for row.names that line up with the tree tip labels.
   If the tree contains surplus species, it gets pruned to size with a message.
+  This includes cases where species are dropped due to missing values.
   
 * `citation()` now correctly refers to the methods paper by Von Hardenberg &
   Gonzalez-Voyer first and the package second.

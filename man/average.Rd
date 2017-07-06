@@ -8,15 +8,16 @@ analysis.}
 average(phylopath, cut_off = 2, method = "conditional", ...)
 }
 \arguments{
-\item{phylopath}{An object of class \code{phylopath}.}
+\item{phylopath}{An object of class \code{phylopath} or
+\code{phylopath_binary}.}
 
 \item{cut_off}{The CICc cut-off used to select the best models. Use
 \code{Inf} to average over all models. Use the \code{best} function to
-only use the top model.}
+only use the top model, or \code{choice} to select any single model.}
 
 \item{method}{Either \code{"full"} or \code{"conditional"}. The methods
 differ in how they deal with averaging a path coefficient where the path is
-absent in some of the models. The full method sets the coefficent (and the
+absent in some of the models. The full method sets the coefficient (and the
 variance) for the missing paths to zero, meaning paths that are missing in
 some models will shrink towards zero. The conditional method only averages
 over models where the path appears, making it more sensitive to small
@@ -35,11 +36,14 @@ Extract and average the best supported models from a phylogenetic path
 analysis.
 }
 \examples{
-  candidates <- list(A = DAG(LS ~ BM, NL ~ BM, DD ~ NL + LS),
-                     C = DAG(LS ~ BM, NL ~ LS + BM, DD ~ NL))
+  candidates <- list(
+    A = DAG(LS ~ BM, NL ~ BM, DD ~ NL, RS ~ BM + NL),
+    B = DAG(LS ~ BM, NL ~ BM + RS, DD ~ NL)
+  )
   p <- phylo_path(candidates, rhino, rhino_tree)
   summary(p)
-  # Models A and C have close to equal support, so we may decide to take
+
+  # Models A and B have similar support, so we may decide to take
   # their average.
 
   avg_model <- average(p)
@@ -49,8 +53,13 @@ analysis.
   \dontrun{
   # Plot to show the weighted graph:
   plot(avg_model)
-  # Note that coefficents that only occur in one of the models become much
+
+  # One can see that an averaged model is not necessarily a DAG itself.
+  # This model actually has a path in two directions.
+
+  # Note that coefficients that only occur in one of the models become much
   # smaller when we use full averaging:
+
   coef_plot(avg_model)
   coef_plot(average(p, method = 'full'))
   }
