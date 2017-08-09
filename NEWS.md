@@ -1,4 +1,17 @@
+phylopath 0.3.1
+--------------------------------------------------------------------------------
+
+####Bugfixes:
+
+* The package broke due to an update of `purrr`, but has now been fixed 
+  (reported by Christoph Liedtke, @hcliedtke).
+  
+* The package depends on a recent version of `nlme`, but this wasn't specified.
+  All package versions of dependencies are now defined. (reported by 
+  @ManuelaGonzalez)
+
 phylopath 0.3.0
+--------------------------------------------------------------------------------
 
 * Added support for completely binary models, that are fitted with 
   `ape::binaryPGLMM`. Use `phylo_path_binary()` to compare models. `average()`,

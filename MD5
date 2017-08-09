@@ -1,9 +1,9 @@
-bd3b529c10f85b01d698291572822c69 *DESCRIPTION
+a1902dd27f765be637e7febecb7b3c7b *DESCRIPTION
 8c1f20f311660694d83180fc0dc78690 *NAMESPACE
-212e5b82f69c1489552c48cbaa23756a *NEWS.md
-aa197bdc1b75c591bb396254c4b40aed *R/DAG.R
+5a96b14d49002f7d6239ae9dab2baa4a *NEWS.md
+99c6960ec8ccbcd3ba29da4396ef60b8 *R/DAG.R
 f25ddf2cd0aa66f0ec50541e8c6b51ff *R/data_docs.R
-04b91c748c1389b3a6827bd392baacdf *R/internal.R
+4c535ce7bc18adeecfda4039d48fb1d1 *R/internal.R
 bcfc43f2529f62304691be9bc28d4667 *R/phylopath.R
 7a15836b800a8a75ea28c83cb69b5acc *R/print_and_plot.R
 ba4029c8a7dc8295213f9c2c4cf769dd *R/sysdata.rda
@@ -15,10 +15,10 @@ e83ea1f2aadf7d6c3eb810d491b53c9e *data/rhino.rda
 56394f0e1ad04c85c13833fa1dfbb6d7 *inst/CITATION
 23f6f480cbc06da3f501f5ba69a6ac83 *inst/doc/binary_models.R
 4e22b4b7c3d36322e6f1a503ff94fea0 *inst/doc/binary_models.Rmd
-ca7f8317b472e8f21bffce36c1049d87 *inst/doc/binary_models.html
+3b5f9b2e8bd545892ea75dce1d34fbaf *inst/doc/binary_models.html
 e86cb670b19eb147473623ec43c1f606 *inst/doc/intro_to_phylopath.R
 c22f8c87c9431bab6100878e508be517 *inst/doc/intro_to_phylopath.Rmd
-cf9de21651136585c862a93cceb0d156 *inst/doc/intro_to_phylopath.html
+e9575fedb13d2270c88254c721cc882c *inst/doc/intro_to_phylopath.html
 4eeaaeca1f688d3508206aa7bd902e5e *man/DAG.Rd
 95bf6ef0a49e52c603d8a5fa9fdc84e7 *man/average.Rd
 d7de7bb4b2f0b09f313869b7a9f53883 *man/average_DAGs.Rd
