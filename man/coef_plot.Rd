@@ -2,28 +2,41 @@
 % Please edit documentation in R/print_and_plot.R
 \name{coef_plot}
 \alias{coef_plot}
-\title{Plot path coefficients and their confidence intervals.}
+\title{Plot path coefficients and their confidence intervals or standard errors.}
 \usage{
-coef_plot(fitted_DAG, reverse_order = FALSE)
+coef_plot(fitted_DAG, error_bar = "ci", order_by = "default", from = NULL,
+  to = NULL, reverse_order = FALSE)
 }
 \arguments{
-\item{fitted_DAG}{A fitted DAG, usually obtained by \code{best},
-\code{average} or \code{est_DAG}.}
+\item{fitted_DAG}{A fitted DAG, usually obtained by \code{\link[=best]{best()}}, \code{\link[=average]{average()}} or \code{\link[=est_DAG]{est_DAG()}}.}
+
+\item{error_bar}{Whether to use confidence intervals (\code{"ci"}) or standard errors (\code{"se"}) as
+error bars. Will force standard errors with a message if confidence intervals are not
+available.}
+
+\item{order_by}{By \code{"default"}, the paths are ordered as in the the model that is supplied.
+Usually this is in the order that was established by \code{[phylo_path()]} for all combined graphs.
+This can be change to \code{"causal"} to do a reordering based on the model at hand, or to
+\code{"strength"} to order them by the standardized regression coefficient.}
+
+\item{from}{Only show path coefficients from these nodes. Supply as a character vector.}
+
+\item{to}{Only show path coefficients to these nodes. Supply as a character vector.}
 
 \item{reverse_order}{If \code{TRUE}, the paths are plotted in reverse order.
-Particularly useful in combination with \code{ggplot2::coor_flip} to create
+Particularly useful in combination with \code{\link[ggplot2:coord_flip]{ggplot2::coord_flip()}} to create
 horizontal versions of the plot.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-Plot path coefficients and their confidence intervals.
+Plot path coefficients and their confidence intervals or standard errors.
 }
 \examples{
   d <- DAG(LS ~ BM, NL ~ BM, DD ~ NL + LS)
   plot(d)
-  d_fitted <- est_DAG(d, rhino, ape::corBrownian, rhino_tree)
+  d_fitted <- est_DAG(d, rhino, rhino_tree, 'lambda')
   plot(d_fitted)
   coef_plot(d_fitted)
   # to create a horizontal version, use this:

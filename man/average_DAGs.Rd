@@ -5,31 +5,31 @@
 \title{Perform model averaging on a list of DAGs.}
 \usage{
 average_DAGs(fitted_DAGs, weights = rep(1, length(coef)),
-  method = "conditional", ...)
+  avg_method = "conditional", ...)
 }
 \arguments{
 \item{fitted_DAGs}{A list of \code{fitted_DAG} objects containing
-coefficients and standard errors, usually obtained by using \code{est_DAG}
+coefficients and standard errors, usually obtained by using \code{\link[=est_DAG]{est_DAG()}}
 on several DAGs.}
 
 \item{weights}{A vector of associated model weights.}
 
-\item{method}{Either \code{"full"} or \code{"conditional"}. The methods
+\item{avg_method}{Either \code{"full"} or \code{"conditional"}. The methods
 differ in how they deal with averaging a path coefficient where the path is
 absent in some of the models. The full method sets the coefficient (and the
 variance) for the missing paths to zero, meaning paths that are missing in
 some models will shrink towards zero. The conditional method only averages
 over models where the path appears, making it more sensitive to small
 effects. Following von Hardenberg & Gonzalez-Voyer 2013, conditional
-averaging is set as the default. Also see \link[MuMIn]{model.avg}.}
+averaging is set as the default. Also see \code{\link[MuMIn:model.avg]{MuMIn::model.avg()}}.}
 
-\item{...}{Additional arguments passed to \link[MuMIn]{par.avg}.
+\item{...}{Additional arguments passed to \code{\link[MuMIn:par.avg]{MuMIn::par.avg()}}.
 
-  For details on the error calculations, see \link[MuMIn]{par.avg}.}
+For details on the error calculations, see \code{\link[MuMIn:par.avg]{MuMIn::par.avg()}}.}
 }
 \value{
 An object of class \code{fitted_DAG}, including standard errors and
-  confidence intervals.
+confidence intervals.
 }
 \description{
 Perform model averaging on a list of DAGs.
@@ -41,7 +41,8 @@ Perform model averaging on a list of DAGs.
   # make sure the DAGs make sense and contain the same variables!
   candidates <- list(A = DAG(LS ~ BM, NL ~ BM, DD ~ NL),
                      B = DAG(LS ~ BM, NL ~ LS, DD ~ NL))
-  fit_cand <- lapply(candidates, est_DAG, rhino, ape::corPagel, rhino_tree)
+  fit_cand <- lapply(candidates, est_DAG, rhino, rhino_tree,
+                     model = 'lambda', method = 'logistic_MPLE')
   ave_cand <- average_DAGs(fit_cand)
   coef_plot(ave_cand)
 }

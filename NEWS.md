@@ -1,3 +1,53 @@
+phylopath 1.0.0
+--------------------------------------------------------------------------------
+
+* Citation info now points to the [bioRxiv paper](https://www.biorxiv.org/content/early/2017/10/31/212068).
+
+* All modeling functions now completely rely on the `phylolm` package, and no 
+  longer use `ape`. This is a major change, that will possibly change the 
+  outcomes of some of your existing analyses (as can happen when chaning 
+  the modeling package). There are, however, several good reasons to make this 
+  change, which I think make it worth the trouble. Firstly, the package is much
+  faster for large trees, and this effect is compounded in `phylopath` because 
+  one may have to fit a few dozen models. Secondly, I think it is important to 
+  have confidence intervals around the regression coefficients, and those were 
+  not available for `ape::binaryPGLMM`. Thirdly, `phylolm` makes it easy to use 
+  a larger variety of models of evolution, including two versions of OU and 
+  early burst, which can be simply set using the `model` parameter. Lastly, the
+  `phylolm()` and `phyloglm()` functions give more uniform results, which makes 
+  it easier to code for situation where you may use both.
+
+* `phylo_path` and all related methods now deal automatically with both 
+  continuous and binary data. All separate binary functions and methods have
+  disappeared as they are no longer needed. Mixing of binary and continious
+  data in the same models is now allowed.
+  
+* The variable order in d-seperation statements now better follows the causal
+  flow of the DAG.
+
+* Added `plot()` method for `phylopath.summary` objects, that shows the weights
+  and p-values for the different models.
+  
+* `coef_plot()` gained `error_bar`, `order_by`, `from` and `to` arguments. The 
+  first allows the user to choose between confidence invervals and standard 
+  errors, the second to order the paths by several methods, and the last two
+  can be used to select only certain paths.
+  
+* Plotting methods of causal models now support a manual layout.
+
+* Plotting of fitted DAG's now uses edge width instead of color to indicate, 
+  the standardized regression coefficient strength, but this can be reverted 
+  using the `type` argument.
+
+* Added a `define_model_set()` convenience function for building models, that 
+  avoids repeated calls to `DAG()` and has an argument to supply paths that are 
+  shared between all your models. It is not needed to specify isolate variables.
+  Old code using `DAG()` continues to work as normal.
+
+* Added support for additional arguments passed to `gls` from `phylo_path`. This
+  can be helpful, for example, for setting the fitting method to maximum 
+  likelihood (`method = "ML"`).
+
 phylopath 0.3.1
 --------------------------------------------------------------------------------
 
@@ -7,16 +57,16 @@ phylopath 0.3.1
   (reported by Christoph Liedtke, @hcliedtke).
   
 * The package depends on a recent version of `nlme`, but this wasn't specified.
-  All package versions of dependencies are now defined. (reported by 
-  @ManuelaGonzalez)
+  All package versions of dependencies are now defined (reported by 
+  @ManuelaGonzalez).
 
 phylopath 0.3.0
 --------------------------------------------------------------------------------
 
 * Added support for completely binary models, that are fitted with 
   `ape::binaryPGLMM`. Use `phylo_path_binary()` to compare models. `average()`,
-  `best()` and `choose()` are now S3 generics and will handle both continious
-  and binary versions. Usage is designed to be as close to the continious version
+  `best()` and `choice()` are now S3 generics and will handle both continuous
+  and binary versions. Usage is designed to be as close to the continuous version
   as possible. `est_DAG_binary()` powers the binary S3 methods.
 
 * All plot functions that used `DiagrammeR` now use `ggraph` instead. This gives
@@ -24,7 +74,7 @@ phylopath 0.3.0
   multiple models at once. Exporting plots also becomes much easier.
 
 * You can now plot a list of causal models with `plot_model_set()`. This 
-  creates a facetted plot where all nodes are kept in the same location, which 
+  creates a faceted plot where all nodes are kept in the same location, which 
   makes it easier to spot how models are different.
 
 phylopath 0.2.3

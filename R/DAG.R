@@ -1,8 +1,23 @@
 #' Directed acyclic graphs (DAGs)
 #'
-#' This function is a simple wrapper around the function from the \code{ggm}
-#' package. The only differences are that the \code{order} argument defaults
-#' to \code{TRUE} and that it adds a \code{DAG} class for easy plotting.
+#' This function is a simple wrapper around the function from the `ggm`
+#' package with the same name. The only differences are that the `order`
+#' argument defaults to `TRUE` and that it adds a `DAG` class for
+#' easy plotting. Typically, one would use [define_model_set()] to
+#' create models for use with the `phylopath` package.
+#'
+#' Supply a formulas for the model as arguments. Formulas should be of the
+#' form `child ~ parent`` and describe each path in your model. Multiple
+#' children of a single parent can be combined into a single formula:
+#' `child ~ parent1 + parent2`. Finally, an isolate (unconnected variable) can
+#' be included as being connected to itself: `isolate ~ isolate`.
+#'
+#' @param order logical, defaulting to `TRUE`. If `TRUE` the nodes of the DAG
+#'   are permuted according to the topological order. If `FALSE` the nodes are
+#'   in the order they first appear in the model formulae (from left to right).
+#'   For use in the `phylopath` package, this should always be kept to `TRUE`,
+#'   but the argument is available to avoid potential problems with masking the
+#'   function from other packages.
 #'
 #' @inheritParams ggm::DAG
 #' @return An object of classes \code{matrix} and \code{DAG}
@@ -21,9 +36,47 @@ DAG <- function(..., order = TRUE) {
   d
 }
 
+#' Define a model set.
+#'
+#' This is a convenience function to quickly and clearly define a set of causal
+#' models. Supply a list of formulas for each model, using either `c()`. Formulas
+#' should be of the form `child ~ parent` and describe each path in your model.
+#' Multiple children of a single parent can be combined into a single formula:
+#' `child ~ parent1 + parent2`.
+#'
+#' This function uses [ggm::DAG()].
+#'
+#' @param ... Named arguments, which each are a lists of formulas defining the
+#'   paths of a causal model.
+#' @param .common A list of formulas that contain causal paths that are common
+#'   to each model.
+#'
+#' @return A list of models, each of class `matrix` and `DAG`.
+#' @export
+#'
+#' @examples
+#' (m <- define_model_set(
+#'   A = c(a~b, b~c),
+#'   B = c(b~a, c~b),
+#'   .common = c(d~a)))
+#' plot_model_set(m)
+define_model_set <- function(..., .common = NULL) {
+  model_list <- list(...)
+  # Get all unique variables
+  vars <- unique(unlist(lapply(unlist(model_list), all.vars)))
+  # And guarantee their inclusion as isolates if necessary
+  vars_formulas <- lapply(vars, function(x) stats::as.formula(paste(x, '~', x)))
+  .common <- c(.common, vars_formulas, recursive = TRUE)
+  # Add isolates and common paths to all models
+  model_list <- lapply(model_list, function(x) c(x, .common))
+  # Build the models with DAG
+  lapply(model_list, function(x) do.call(DAG, x))
+}
+
 #' Add standardized path coefficients to a DAG.
 #'
 #' @param DAG A directed acyclic graph, typically created with \code{DAG}.
+#' @param boot The number of bootstrap replicates used to estimate confidence intervals.
 #' @inheritParams phylo_path
 #'
 #' @return An object of class \code{fitted_DAG}.
@@ -33,10 +86,11 @@ DAG <- function(..., order = TRUE) {
 #' @examples
 #'   d <- DAG(LS ~ BM, NL ~ BM, DD ~ NL + LS)
 #'   plot(d)
-#'   d_fitted <- est_DAG(d, rhino, ape::corBrownian, rhino_tree)
+#'   d_fitted <- est_DAG(d, rhino, rhino_tree, 'lambda')
 #'   plot(d_fitted)
-est_DAG <- function(DAG, data, cor_fun, tree) {
-  cor_fun <- match.fun(cor_fun)
+est_DAG <- function(DAG, data, tree, model, method, boot = 0, ...) {
+  stopifnot(inherits(DAG, 'DAG'))
+  # scale the continous variables
   r <- rownames(data)
   data <- dplyr::mutate_if(data, is.numeric, scale)
   rownames(data) <- r
@@ -45,7 +99,7 @@ est_DAG <- function(DAG, data, cor_fun, tree) {
       return(cbind(y, y, y, y))
     }
     f <- stats::formula(paste(x, paste(n[y == 1], collapse = '+'), sep = '~'))
-    m <- gls2(f, data = data, cor_fun = cor_fun, tree = tree)
+    m <- phylo_g_lm(f, data, tree, model, method, boot, ...)
     if (!is.null(m$error)) {
       stop(paste('Fitting the following model:\n   ', Reduce(paste, deparse(f)),
                  '\nproduced this error:\n   ', m$error),
@@ -55,82 +109,44 @@ est_DAG <- function(DAG, data, cor_fun, tree) {
     Coef <- se <- lower <- upper <- y
     Coef[Coef != 0]   <- get_est(m)
     se[se != 0]       <- get_se(m)
-    lower[lower != 0] <- tryCatch(get_lower(m),
-                                  error = function(e) NA)
-    upper[upper != 0] <- tryCatch(get_upper(m),
-                                  error = function(e) NA)
+    lower[lower != 0] <- get_lower(m)
+    upper[upper != 0] <- get_upper(m)
     return(cbind(coef = Coef, se = se, lower = lower, upper = upper))
   }, colnames(DAG), as.data.frame(DAG), MoreArgs = list(n = rownames(DAG)))
-  if (any(sapply(d, function(x) any(is.na(x))))) {
-    warnings("NA's have been generated, most likely some confidence intervals could not be estimated.")
-  }
   coefs  <- sapply(d, `[`, 1:nrow(DAG), 1)
   ses    <- sapply(d, `[`, 1:nrow(DAG), 2)
   lowers <- sapply(d, `[`, 1:nrow(DAG), 3)
   uppers <- sapply(d, `[`, 1:nrow(DAG), 4)
   rownames(coefs) <- rownames(ses) <- rownames(lowers) <- rownames(uppers) <-
     rownames(DAG)
-  res <- list(coef = coefs, se = ses, lower = lowers, upper = uppers)
-  class(res) <- 'fitted_DAG'
-  return(res)
-}
-
-#' Add standardized path coefficients to a binary DAG.
-#'
-#' @param DAG A directed acyclic graph, typically created with \code{DAG}.
-#' @inheritParams phylo_path_binary
-#'
-#' @return An object of class \code{binary_fitted_DAG}.
-#'
-#' @export
-est_DAG_binary <- function(DAG, data, tree) {
-  d <- Map(function(x, y, n) {
-    if (all(y == 0)) {
-      return(cbind(y, y, y, y))
-    }
-    f <- stats::formula(paste(x, paste(n[y == 1], collapse = '+'), sep = '~'))
-    m <- purrr::safely(ape::binaryPGLMM)(f, data = data, phy = tree)
-    if (!is.null(m$error)) {
-      stop(paste('Fitting the following model:\n   ', Reduce(paste, deparse(f)),
-                 '\nproduced this error:\n   ', m$error),
-           call. = FALSE)
-    }
-    m <- m$result
-    Coef <- se <- y
-    Coef[Coef != 0]   <- get_est_binary(m)
-    se[se != 0]       <- get_se_binary(m)
-    return(cbind(coef = Coef, se = se))
-  }, colnames(DAG), as.data.frame(DAG), MoreArgs = list(n = rownames(DAG)))
-  if (any(sapply(d, function(x) any(is.na(x))))) {
-    warnings("NA's have been generated, most likely some confidence intervals could not be estimated.")
+  if (boot > 0) {
+    res <- list(coef = coefs, se = ses, lower = lowers, upper = uppers)
+  } else {
+    res <- list(coef = coefs, se = ses)
   }
-  coefs  <- sapply(d, `[`, 1:nrow(DAG), 1)
-  ses    <- sapply(d, `[`, 1:nrow(DAG), 2)
-  rownames(coefs) <- rownames(ses) <- rownames(DAG)
-  res <- list(coef = coefs, se = ses)
-  class(res) <- c('binary_fitted_DAG', 'fitted_DAG')
+  class(res) <- 'fitted_DAG'
   return(res)
 }
 
 #' Perform model averaging on a list of DAGs.
 #'
-#' @param fitted_DAGs A list of \code{fitted_DAG} objects containing
-#'   coefficients and standard errors, usually obtained by using \code{est_DAG}
+#' @param fitted_DAGs A list of `fitted_DAG` objects containing
+#'   coefficients and standard errors, usually obtained by using [est_DAG()]
 #'   on several DAGs.
 #' @param weights A vector of associated model weights.
-#' @param method Either \code{"full"} or \code{"conditional"}. The methods
+#' @param avg_method Either `"full"` or `"conditional"`. The methods
 #'   differ in how they deal with averaging a path coefficient where the path is
 #'   absent in some of the models. The full method sets the coefficient (and the
 #'   variance) for the missing paths to zero, meaning paths that are missing in
 #'   some models will shrink towards zero. The conditional method only averages
 #'   over models where the path appears, making it more sensitive to small
 #'   effects. Following von Hardenberg & Gonzalez-Voyer 2013, conditional
-#'   averaging is set as the default. Also see \link[MuMIn]{model.avg}.
-#' @param ... Additional arguments passed to \link[MuMIn]{par.avg}.
+#'   averaging is set as the default. Also see [MuMIn::model.avg()].
+#' @param ... Additional arguments passed to [MuMIn::par.avg()].
 #'
-#'   For details on the error calculations, see \link[MuMIn]{par.avg}.
+#'   For details on the error calculations, see [MuMIn::par.avg()].
 #'
-#' @return An object of class \code{fitted_DAG}, including standard errors and
+#' @return An object of class `fitted_DAG`, including standard errors and
 #'   confidence intervals.
 #' @export
 #'
@@ -141,14 +157,13 @@ est_DAG_binary <- function(DAG, data, tree) {
 #'   # make sure the DAGs make sense and contain the same variables!
 #'   candidates <- list(A = DAG(LS ~ BM, NL ~ BM, DD ~ NL),
 #'                      B = DAG(LS ~ BM, NL ~ LS, DD ~ NL))
-#'   fit_cand <- lapply(candidates, est_DAG, rhino, ape::corPagel, rhino_tree)
+#'   fit_cand <- lapply(candidates, est_DAG, rhino, rhino_tree,
+#'                      model = 'lambda', method = 'logistic_MPLE')
 #'   ave_cand <- average_DAGs(fit_cand)
 #'   coef_plot(ave_cand)
 average_DAGs <- function(fitted_DAGs, weights = rep(1, length(coef)),
-                         method = 'conditional', ...) {
-  if (!(method %in% c('full', 'conditional'))) {
-    stop('method has to be either "full" or "conditional".', call. = FALSE)
-  }
+                         avg_method = 'conditional', ...) {
+  avg_method <- match.arg(avg_method, choices = c("full", "conditional"))
   ord <- rownames(fitted_DAGs[[1]]$coef)
   fitted_DAGs <- lapply(fitted_DAGs, function(l) {
     lapply(l, function(m) m[ord, ord]) } )
@@ -159,8 +174,8 @@ average_DAGs <- function(fitted_DAGs, weights = rep(1, length(coef)),
   rel_weights <- weights / sum(weights)
   coef      <- simplify2array(coef)
   std_error <- simplify2array(std_error)
-  if (method == 'conditional') {
-    coef[coef == 0]          <- NA
+  if (avg_method == 'conditional') {
+    coef[coef == 0]           <- NA
     std_error[std_error == 0] <- NA
   }
   a_coef <- apply(coef, 1:2, stats::weighted.mean, w = rel_weights,

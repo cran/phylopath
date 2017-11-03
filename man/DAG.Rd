@@ -9,18 +9,26 @@ DAG(..., order = TRUE)
 \arguments{
 \item{...}{a sequence of model formulae}
 
-\item{order}{logical, defaulting to \code{FALSE}. If \code{TRUE} the nodes of the
-    DAG are permuted according to the topological order. If
-    \code{FALSE} the nodes are in the order they first appear in the model
-    formulae (from left to right).}
+\item{order}{logical, defaulting to \code{TRUE}. If \code{TRUE} the nodes of the DAG
+are permuted according to the topological order. If \code{FALSE} the nodes are
+in the order they first appear in the model formulae (from left to right).
+For use in the \code{phylopath} package, this should always be kept to \code{TRUE},
+but the argument is available to avoid potential problems with masking the
+function from other packages.}
 }
 \value{
 An object of classes \code{matrix} and \code{DAG}
 }
 \description{
 This function is a simple wrapper around the function from the \code{ggm}
-package. The only differences are that the \code{order} argument defaults
-to \code{TRUE} and that it adds a \code{DAG} class for easy plotting.
+package with the same name. The only differences are that the \code{order}
+argument defaults to \code{TRUE} and that it adds a \code{DAG} class for
+easy plotting. Typically, one would use \code{\link[=define_model_set]{define_model_set()}} to
+create models for use with the \code{phylopath} package.
+}
+\details{
+Supply a formulas for the model as arguments. Formulas should be of the
+form \code{child ~ parent`` and describe each path in your model. Multiple children of a single parent can be combined into a single formula:}child ~ parent1 + parent2\code{. Finally, an isolate (unconnected variable) can be included as being connected to itself:}isolate ~ isolate`.
 }
 \examples{
   # Use formula notation to create DAGs:
