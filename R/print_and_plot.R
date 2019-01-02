@@ -36,7 +36,17 @@ print.phylopath <- function(x, ...) {
   cat('\n')
 }
 
-show_warnings <- function(phylopath) {
+#' Print out warnings from a phylopath analysis.
+#'
+#' Use this function after running `phylo_path()` to conveniently print any generated warnings
+#' to the screen. You can either provide no arguments, which will only work if you run it directly
+#' after the analysis, or you have to provide the `phylopath` object manually.
+#'
+#' @param phylopath A `phylopath` object of which the warnings should be printed.
+#'
+#' @export
+show_warnings <- function(phylopath = NULL) {
+  if (is.null(phylopath)) phylopath <- .Last.value
   stopifnot(inherits(phylopath, 'phylopath'))
   phylopath$warnings
 }
