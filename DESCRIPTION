@@ -1,7 +1,7 @@
 Package: phylopath
 Type: Package
 Title: Perform Phylogenetic Path Analysis
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: person("Wouter", "van der Bijl",
                   email = "wouter@zoology.ubc.ca",
                   role = c("aut", "cre"))
@@ -21,7 +21,7 @@ RoxygenNote: 6.1.1
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2019-07-12 20:57:02 UTC; wouter
+Packaged: 2019-08-28 15:37:26 UTC; wouter
 Author: Wouter van der Bijl [aut, cre]
 Repository: CRAN
-Date/Publication: 2019-07-12 21:30:03 UTC
+Date/Publication: 2019-08-28 16:10:02 UTC

@@ -1,4 +1,4 @@
-## ----define models, fig.align='center', fig.width=10, fig.height=8, out.height="600px", fig.dpi = 600----
+## ----define_models, fig.align='center', fig.width=10, fig.height=8, out.height="600px", fig.dpi = 600----
 library(phylopath)
 
 models <- define_model_set(
@@ -22,7 +22,7 @@ plot_model_set(models, algorithm = 'kk')
 ## ----fit models----------------------------------------------------------
 (cichlids_results <- phylo_path(models, cichlids, cichlids_tree))
 
-## ----get summary---------------------------------------------------------
+## ----get_summary---------------------------------------------------------
 (s <- summary(cichlids_results))
 plot(s)
 
