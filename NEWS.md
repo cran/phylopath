@@ -1,3 +1,14 @@
+phylopath 1.1.2
+--------------------------------------------------------------------------------
+
+* Prepare for R v4.0.0.
+
+* Bug fix: Very low p-values could cause underflow and result in infinite C 
+  statistics. All p-values are now set to be at least the size of the machine
+  accuracy (i.e. 2 * 10^-16).
+  
+* Warnings are now again correctly reported.
+
 phylopath 1.1.1
 --------------------------------------------------------------------------------
 
@@ -11,7 +22,7 @@ phylopath 1.1.0
   `(n - 1 - q)`, where `n` is the number of observations (species) and `q` the 
   number of parameters in the causal model. This could lead to infinite CICc
   when `n == q + 1`, or a flipped of CICc when `n < q + 1`. This would typically
-  only occur when attempting to fit models with very species (e.g. < 10).
+  only occur when attempting to fit models with very few species (e.g. < 10).
   
   New behavior is to set CICc to `NA` when `n` is insufficient, and to give a
   warning.
