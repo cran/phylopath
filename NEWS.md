@@ -1,3 +1,16 @@
+phylopath 1.1.3
+--------------------------------------------------------------------------------
+
+* Fixed a bug that made `phylo_path` fail to pass additional (...) 
+  arguments correctly to `phylolm`.
+
+* Add informative error when trying to plot a DAG without any paths.
+
+* Updated plotting functions to work with new `ggraph` releases.
+
+* Fixed regression with parallel usage of `phylo_path` due to an S3 
+  inheritance issue on the cluster (#16, thanks Simon Greenhill for the report).
+
 phylopath 1.1.2
 --------------------------------------------------------------------------------
 
@@ -47,7 +60,7 @@ phylopath 1.0.1
 phylopath 1.0.0
 --------------------------------------------------------------------------------
 
-* Citation info now points to the [bioRxiv paper](https://www.biorxiv.org/content/early/2017/10/31/212068).
+* Citation info now points to the [bioRxiv paper](https://www.biorxiv.org/content/10.1101/212068v1).
 
 * All modeling functions now completely rely on the `phylolm` package, and no 
   longer use `ape`. This is a major change, that will possibly change the 

@@ -139,12 +139,11 @@ l <- function(dCICc) exp(-0.5 * dCICc)
 
 w <- function(l) l / sum(l)
 
-phylo_g_lm <- function(formula, data, tree, model, method, boot = 0, ...) {
+phylo_g_lm <- function(formula, data, tree, model, method, boot = 0, dots = NULL) {
   # we capture the dots, because we need to match the names to either phylolm or phylolm
-  dots <- list(...)
   dots_glm <- dots[names(dots) %in% names(formals(phylolm::phyloglm))]
   dots_lm <- dots[names(dots) %in% names(formals(phylolm::phylolm))]
-  if (length(intersect(names(dots_glm), names(dots_lm))) != length(dots)) {
+  if (length(union(names(dots_glm), names(dots_lm))) != length(dots)) {
     warning("Some arguments in ... are not recognized.", call. = FALSE)
   }
   # we capture the first argument in the formula, to check whether it is binary
@@ -158,7 +157,7 @@ phylo_g_lm <- function(formula, data, tree, model, method, boot = 0, ...) {
   } else {
     fun <- phylolm::phylolm
     args <- c(list(formula = formula, data = data, phy = tree, model = model, boot = boot),
-              dots_glm)
+              dots_lm)
   }
   res <- do.call(quiet_safely(fun), args)
   # Remove the call, since quiet_safely messes it up and it's annoying in printing
@@ -168,7 +167,11 @@ phylo_g_lm <- function(formula, data, tree, model, method, boot = 0, ...) {
 }
 
 get_p <- function(m) {
-  s <- stats::coef(summary(m))
+  s <- switch(
+    class(m),
+    phylolm = stats::coef(phylolm::summary.phylolm(m)),
+    phyloglm = stats::coef(phylolm::summary.phyloglm(m))
+  )
   p <- s[nrow(s), 'p.value']
   if (p < .Machine$double.eps) p <- .Machine$double.eps
   return(p)
@@ -179,11 +182,20 @@ get_est <- function(m) {
 }
 
 get_se <- function(m) {
-  stats::coef(summary(m))[-1, 'StdErr']
+  s <- switch(
+    class(m),
+    phylolm = stats::coef(phylolm::summary.phylolm(m)),
+    phyloglm = stats::coef(phylolm::summary.phyloglm(m))
+  )
+  s[-1, 'StdErr']
 }
 
 get_lower <- function(m) {
-  s <- stats::coef(summary(m))
+  s <- switch(
+    class(m),
+    phylolm = stats::coef(phylolm::summary.phylolm(m)),
+    phyloglm = stats::coef(phylolm::summary.phyloglm(m))
+  )
   if ('lowerbootCI' %in% colnames(s)) {
     r <- s[-1, 'lowerbootCI']
   } else {
@@ -193,7 +205,11 @@ get_lower <- function(m) {
 }
 
 get_upper <- function(m) {
-  s <- stats::coef(summary(m))
+  s <- switch(
+    class(m),
+    phylolm = stats::coef(phylolm::summary.phylolm(m)),
+    phyloglm = stats::coef(phylolm::summary.phyloglm(m))
+  )
   if ('upperbootCI' %in% colnames(s)) {
     r <- s[-1, 'upperbootCI']
   } else {
@@ -222,6 +238,7 @@ adjust_layout <- function(l, rotation, flip_x, flip_y) {
 }
 
 combine_with_labels <- function(l, labels) {
+  incoming_class <- class(l)
   if (is.null(labels)) {
     return(l)
   }
@@ -232,7 +249,7 @@ combine_with_labels <- function(l, labels) {
     stop('Some nodes are missing from labels.', call. = FALSE)
   }
   l$name <- factor(l$name, names(labels), labels)
-  class(l) <- c("layout_igraph", "layout_ggraph", "data.frame")
+  class(l) <- incoming_class
   return(l)
 }
 
