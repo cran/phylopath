@@ -35,6 +35,6 @@ best_cichlids
 ## -----------------------------------------------------------------------------
 coef_plot(best_cichlids, error_bar = "se", reverse_order = TRUE) + ggplot2::coord_flip()
 
-## ---- fig.align='center', fig.width=8, fig.height=4, out.width="600px", fig.dpi = 300----
+## ----fig.align='center', fig.width=8, fig.height=4, out.width="600px", fig.dpi = 300----
 plot(best_cichlids)
 

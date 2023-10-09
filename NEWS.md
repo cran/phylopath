@@ -1,3 +1,21 @@
+phylopath 1.2.0
+--------------------------------------------------------------------------------
+
+* Replaced parallel processing based on the `parallel` package and `pbapply` to
+  use `future` instead. Use e.g. `future::plan("multisession", workers = n)` to
+  enable parallel processing for both model comparison (parallel over dsep 
+  statements) and model estimation (when using bootstrapping).
+
+* Fixed a bug that no longer allowed parallel processing in `phylo_path`.
+
+* Fixed a bug where the range of the width scale for paths in `plot.fitted_DAG` 
+  was incorrectly set to the `max(weight)`, instead of `max(abs(weight))`. 
+  (Thanks Yu Xu for the report.)
+  
+* Better user messaging and documentation around the use of the `boot` parameter.
+
+* Update of binary vignette to include more info on convergence warnings.
+
 phylopath 1.1.3
 --------------------------------------------------------------------------------
 
