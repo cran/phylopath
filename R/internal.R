@@ -9,6 +9,7 @@ check_models_data_tree <- function(model_set, data, tree, na.rm) {
          paste(sort(unique(unlist(var_names))), collapse = '\n'),
          call. = FALSE)
   }
+  # Drop all data columns that are not used in the models
   data <- data[, unique(unlist(var_names))]
   # We force all character columns to factors
   char_cols <- sapply(data, is.character)
@@ -21,6 +22,12 @@ check_models_data_tree <- function(model_set, data, tree, na.rm) {
       stop("Variable '", names(data)[i], "' is expected to binary, but has ", n_levels, " levels.",
            .call = FALSE)
     }
+  }
+  # Check for data columns that are numeric, but only have 0-1. These might be user error, attempting
+  # to pass a binary variable as numeric
+  binary_numerics <- sapply(data, function(x) all(x %in% 0:1))
+  for (n in colnames(data)[binary_numerics]) {
+    warning('Column ', n, ' appears to have binary data, but was not recognized as binary. If it should be treated as binary, convert it to a factor first.')
   }
   # Check tree
   if (inherits(tree, 'multiPhylo')) {
@@ -46,7 +53,7 @@ check_models_data_tree <- function(model_set, data, tree, na.rm) {
   # Prune the tree
   if (length(tree$tip.label) > nrow(data)) {
     tree <- ape::drop.tip(tree, setdiff(tree$tip.label, rownames(data)))
-    message('Pruned tree to drop species not included in dat.')
+    message('Pruned tree to drop species not included in `data`.')
   }
   # Add names to the models, if they don't have them
   if (is.null(names(model_set))) {
@@ -67,9 +74,12 @@ find_consensus_order <- function(model_set) {
   # Otherwise we find the most common orderings and use those.
   # Make sure all models are ordered:
   model_set <- lapply(model_set, ggm::topSort)
+  # find the unique variables in the models
   vars <- lapply(model_set, colnames)
+  # tally each possible combination of variables
   combs <- as.data.frame(t(utils::combn(vars[[1]], 2)), stringsAsFactors = FALSE)
   names(combs) <- c('node1', 'node2')
+  # count how often var1 is ordered above var2
   combs$count <- 0
   for (i in seq_along(vars)) {
     v <- apply(combs, 1, function(x) {
@@ -83,10 +93,23 @@ find_consensus_order <- function(model_set) {
   combs$node1 <- ifelse(combs$count > 0.5 * length(model_set), combs$node1, combs$node2)
   combs$node2 <- ifelse(combs$count > 0.5 * length(model_set), combs$node2, tmp)
 
-  # Now we order the nodes by how many nodes they are above, this should go from n:1
+  # Now we order the nodes by how many nodes they are above (i.e. how often are they node 1?),
+  # this should go from n:1
   combs$n <- table(combs$node1)[combs$node1]
   combs <- combs[order(-combs$n), ]
-  res <- unlist(c(unique(combs$node1), utils::tail(combs, 1)[, 'node2']))
+  # now we find all the node1 variables, in order of n
+  res <- unique(combs$node1)
+  # but we might be missing one last variable, if it was *always* node 2
+  missing_vars <- setdiff(vars[[1]], res)
+  # If so, add at the end of the order
+  if (length(missing_vars) == 1) {
+    res <- c(res, missing_vars)
+  }
+  # we should never have more than 1 missing var, but check for this just in case:
+  if (length(missing_vars) > 1) {
+    stop('If you get this error, please contact the maintainer. (code 2)')
+  }
+
   names(res) <- NULL
   res
 }
@@ -115,7 +138,7 @@ find_formulas <- function(d, order) {
     if ((path2 & !path1) | (path1 & path2)) {
       # these conditions should not occur, the first means basiSet is returning the wrong order,
       # the second should only occur if there are cycles.
-      stop('If you get this error, please contact the maintainer.')
+      stop('If you get this error, please contact the maintainer. (code 1)')
     }
     if (!path1 & !path2) {
       # check whether the order is according to `order`
