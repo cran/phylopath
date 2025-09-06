@@ -1,14 +1,14 @@
 ## ----eval=FALSE---------------------------------------------------------------
-#  library(ape)
-#  my_tree <- read.tree('my_tree.tre') # For Newick format trees
-#  my_tree <- read.nexus('my_tree.nex') # For NEXUS format trees
+# library(ape)
+# my_tree <- read.tree('my_tree.tre') # For Newick format trees
+# my_tree <- read.nexus('my_tree.nex') # For NEXUS format trees
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  rownames(my_data) <- my_data$species_name
+# rownames(my_data) <- my_data$species_name
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  my_tree$tip.label # Check the tip labels of your tree
-#  rownames(my_data) <- gsub(' ', '_', my_data$species_name_with_spaces)
+# my_tree$tip.label # Check the tip labels of your tree
+# rownames(my_data) <- gsub(' ', '_', my_data$species_name_with_spaces)
 
 ## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(dev = "png", fig.height = 5, fig.width = 5, dpi = 300, out.width = "450px")

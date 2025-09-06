@@ -49,7 +49,7 @@ print.phylopath <- function(x, ...) {
 #' @export
 show_warnings <- function(phylopath = NULL) {
   if (is.null(phylopath)) phylopath <- .Last.value
-  if(!inherits(phylopath, 'phylopath'))
+  if (!inherits(phylopath, 'phylopath'))
     stop('This function expects a phylopath object.', call. = FALSE)
   sink <- lapply(phylopath$warnings, warning, .call = FALSE)
   return(invisible(NULL))
@@ -58,7 +58,7 @@ show_warnings <- function(phylopath = NULL) {
 #' Plot a directed acyclic graph.
 #'
 #' @param x A `DAG`` object, usually created with the [define_model_set()] or [DAG()] function.
-#' @param algorithm A layout algorithm from [igraph], see
+#' @param algorithm A layout algorithm from `igraph`, see
 #'   [ggraph::create_layout()]. By default,
 #'   uses the Sugiyama layout algorithm, which is designed to minimize edge crossing in DAGs.
 #' @param ... Not used.
